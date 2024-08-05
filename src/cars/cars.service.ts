@@ -1,4 +1,7 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import { Car } from './interfaces/car.interface';
+import {v4 as uuid} from 'uuid'
+import { CreateCarDto, UpdateCarDto } from './dto';
 
 // Todos los servicios son providers, no todos los providers son servicios
 
@@ -8,19 +11,19 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 @Injectable()
 export class CarsService {
 
-    private cars = [
+    private cars: Car[] = [
         {
-            id: 1,
+            id: uuid(),
             brand: 'Toyota',
             model: 'Corolla',
         },
         {
-            id: 2,
+            id: uuid(),
             brand: 'Honda',
             model: 'Civic',
         },
         {
-            id: 3,
+            id: uuid(),
             brand: 'Jeep',
             model: 'Cheerokee',
         }
@@ -32,7 +35,7 @@ export class CarsService {
     }
 
     // Metodo para obtener un carro por su id
-    findOneById(id: number) {
+    findOneById(id: string) {
 
         const car = this.cars.find(car => car.id === id);
 
@@ -40,6 +43,54 @@ export class CarsService {
         if (!car) throw new NotFoundException(`Car with id '${id}' not found`);
 
         return car
+    }
+
+    // Metodo para crear un carro
+    create( createCarDto: CreateCarDto ) {
+
+        const newCar: Car = {
+            id: uuid(),
+            ...createCarDto
+        }
+
+        this.cars.push( newCar );
+
+        return newCar;
+    }
+
+    update( id: string, updateCarDto: UpdateCarDto ) {
+        
+        let carDB = this.findOneById(id) // Buscamos el carro por id, si no lo encuentra lanzara un error
+
+        // Hacemos que no se pueda modificar el id
+        if (updateCarDto.id && updateCarDto.id !== id) {
+            throw new BadRequestException('You cannot update the id of the car')
+
+        }
+
+        this.cars = this.cars.map( car => {
+            if (car.id === id) {
+                carDB = {
+                    ...carDB,
+                    ...updateCarDto,
+                    id,
+                }
+
+                return carDB
+            }
+            return car
+        })
+
+        return carDB; // Carro actualizado
+    }
+
+    delete( id: string ) {
+        const car = this.findOneById(id);
+
+        this.cars = this.cars.filter( car => car.id !== id );
+
+        // No se retorna nada ya que el carro fue eliminado
+        // return this.cars;
     }
 
 }
