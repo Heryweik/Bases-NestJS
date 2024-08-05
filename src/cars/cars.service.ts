@@ -12,7 +12,7 @@ import { CreateCarDto, UpdateCarDto } from './dto';
 export class CarsService {
 
     private cars: Car[] = [
-        {
+        /* {
             id: uuid(),
             brand: 'Toyota',
             model: 'Corolla',
@@ -26,7 +26,7 @@ export class CarsService {
             id: uuid(),
             brand: 'Jeep',
             model: 'Cheerokee',
-        }
+        } */
     ];
 
     // Creamos este metodo ya que cars es privado y no se puede leer desde afuera de la clase, por lo tanto necesitamos un metodo que nos permita leerlo
@@ -91,6 +91,11 @@ export class CarsService {
 
         // No se retorna nada ya que el carro fue eliminado
         // return this.cars;
+    }
+
+    // Metodo para cargar informacion
+    fillCarsWithSeedData( cars: Car[] ) {
+        this.cars = cars;
     }
 
 }
